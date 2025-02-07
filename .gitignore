@@ -1,1 +1,9 @@
-/target
+target/
+.idea
+*.pdb
+*.log
+*.iml
+*.exe
+
+Cargo.toml
+Cargo.lock

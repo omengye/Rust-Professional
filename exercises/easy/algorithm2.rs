@@ -73,7 +73,27 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn reverse(&mut self){
-		// TODO
+        let mut current = self.start;
+        let mut prev = None;
+
+        // Traverse through the list and reverse the links
+        while let Some(mut curr_node) = current {
+            let mut node_ref = unsafe { curr_node.as_mut() };
+
+            // Swap next and prev pointers
+            let temp = node_ref.next;
+            node_ref.next = node_ref.prev;
+            node_ref.prev = temp;
+
+            // Move to the next node (previous in the original list)
+            prev = Some(curr_node);
+            current = node_ref.prev;
+        }
+
+        // After the loop, prev will be the new start
+        self.start = prev;
+        // The old start is now the new end
+        self.end = current;
 	}
 }
 
