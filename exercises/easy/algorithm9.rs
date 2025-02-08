@@ -37,7 +37,42 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        // 增加计数
+        self.count += 1;
+
+        // 如果需要，扩展vector
+        if self.count == self.items.len() {
+            self.items.push(value);
+        } else {
+            self.items[self.count] = value;
+        }
+
+        // 向上调整堆
+        self.sift_up(self.count);
+    }
+
+    fn sift_up(&mut self, mut idx: usize) {
+        while idx > 1 {
+            let parent = self.parent_idx(idx);
+            if (self.comparator)(&self.items[idx], &self.items[parent]) {
+                self.items.swap(idx, parent);
+                idx = parent;
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn sift_down(&mut self, mut idx: usize) {
+        while self.children_present(idx) {
+            let child = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[child], &self.items[idx]) {
+                self.items.swap(idx, child);
+                idx = child;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +92,20 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        if right <= self.count {
+            // 如果右子节点存在，比较左右子节点
+            if (self.comparator)(&self.items[left], &self.items[right]) {
+                left
+            } else {
+                right
+            }
+        } else {
+            // 只有左子节点
+            left
+        }
     }
 }
 
@@ -84,8 +131,27 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        // 保存根节点的值
+        let result = std::mem::replace(&mut self.items[1], T::default());
+
+        // 将最后一个元素移到根节点
+        if self.count > 1 {
+            self.items[1] = std::mem::replace(&mut self.items[self.count], T::default());
+        }
+
+        // 减少计数
+        self.count -= 1;
+
+        // 如果堆不为空，向下调整堆
+        if !self.is_empty() {
+            self.sift_down(1);
+        }
+
+        Some(result)
     }
 }
 
